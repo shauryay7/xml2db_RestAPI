@@ -1,53 +1,46 @@
 package com.example.xml2db.controller;
 
-import com.example.xml2db.entity.Student;
-import com.example.xml2db.repository.StudentRepository;
+import com.example.xml2db.model.DatabaseDef;
+import com.example.xml2db.model.TableDef;
+import com.example.xml2db.util.XmlParser;
+import jakarta.xml.bind.JAXBException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
-@RequestMapping("/student")
-public class StudentController {
+public class XmlUploadController {
 
     @Autowired
-    private StudentRepository studentRepository;
+    private JdbcTemplate jdbcTemplate;
 
-    // Create
-    @PostMapping
-    public Student createStudent(@RequestBody Student student) {
-        return studentRepository.save(student);
-    }
+    @PostMapping("/upload-xml")
+    public String uploadXml(@RequestBody String xmlContent) {
+        try {
+            DatabaseDef db = XmlParser.parse(xmlContent);
 
-    // Read all
-    @GetMapping
-    public List<Student> getAllStudents() {
-        return studentRepository.findAll();
-    }
+            for (TableDef table : db.getTables()) {
+                StringBuilder sb = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
+                sb.append(table.getName()).append(" (");
 
-    // Read one
-    @GetMapping("/{id}")
-    public Optional<Student> getStudentById(@PathVariable int id) {
-        return studentRepository.findById(id);
-    }
+                table.getColumns().forEach(col -> {
+                    sb.append(col.getName())
+                            .append(" ")
+                            .append(col.getType())
+                            .append(", ");
+                });
 
-    // Update
-    @PutMapping("/{id}")
-    public Student updateStudent(@PathVariable int id, @RequestBody Student updatedStudent) {
-        return studentRepository.findById(id)
-                .map(student -> {
-                    student.setName(updatedStudent.getName());
-                    student.setEmail(updatedStudent.getEmail());
-                    return studentRepository.save(student);
-                })
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-    }
+                sb.setLength(sb.length() - 2);
+                sb.append(");");
 
-    // Delete
-    @DeleteMapping("/{id}")
-    public void deleteStudent(@PathVariable int id) {
-        studentRepository.deleteById(id);
+                jdbcTemplate.execute(sb.toString());
+            }
+
+            return "Tables created successfully.";
+        } catch (JAXBException e) {
+            return "XML parsing error: " + e.getMessage();
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
     }
 }

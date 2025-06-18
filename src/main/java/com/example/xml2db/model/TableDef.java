@@ -12,6 +12,7 @@ public class TableDef {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -20,6 +21,7 @@ public class TableDef {
     public List<ColumnDef> getColumns() {
         return columns;
     }
+
     public void setColumns(List<ColumnDef> columns) {
         this.columns = columns;
     }

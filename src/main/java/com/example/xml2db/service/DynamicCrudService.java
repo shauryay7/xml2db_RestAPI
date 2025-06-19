@@ -5,8 +5,13 @@ import com.example.xml2db.model.InsertRequest;
 import com.example.xml2db.model.UpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,18 +22,36 @@ public class DynamicCrudService {
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     public void insert(InsertRequest request) {
-        String table = request.getTable();
-        Map<String, String> row = request.getRow();
+        InsertRequest.YksItem yksItem = request.getYksItem();
+        InsertRequest.YksItemImg yksItemImg = request.getYksItemImg();
 
-        StringBuilder sql = new StringBuilder("INSERT INTO ")
-                .append(table).append(" (")
-                .append(String.join(", ", row.keySet()))
-                .append(") VALUES (");
+        if (yksItem != null && yksItemImg != null) {
+            // 1. Insert into yks_item (parent)
+            String insertItemSql = "INSERT INTO yks_item (item_id, item_description) VALUES (?, ?)";
+            KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        String paramStr = String.join(", ", row.keySet().stream().map(k -> ":" + k).toList());
-        sql.append(paramStr).append(")");
+            jdbcTemplate.getJdbcTemplate().update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(insertItemSql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, yksItem.getItem_id());
+                ps.setString(2, yksItem.getItem_description());
+                return ps;
+            }, keyHolder);
 
-        jdbcTemplate.update(sql.toString(), row);
+            Number itemKey = keyHolder.getKey();
+            if (itemKey == null) {
+                throw new IllegalStateException("Failed to retrieve generated item_key for yks_item.");
+            }
+
+            // 2. Insert into yks_item_img (child)
+            String insertImgSql = "INSERT INTO yks_item_img (item_key, img_url) VALUES (:item_key, :img_url)";
+            Map<String, Object> imgParams = new HashMap<>();
+            imgParams.put("item_key", itemKey.longValue());
+            imgParams.put("img_url", yksItemImg.getImg_url());
+            jdbcTemplate.update(insertImgSql, imgParams);
+
+        } else {
+            throw new IllegalArgumentException("Invalid insert request: missing yks_item or yks_item_img.");
+        }
     }
 
     public List<Map<String, Object>> getAll(String table) {
@@ -50,11 +73,10 @@ public class DynamicCrudService {
         }
 
         String id = row.remove("id");
-
         String setClause = String.join(", ", row.keySet().stream().map(k -> k + "=:" + k).toList());
         String sql = "UPDATE " + table + " SET " + setClause + " WHERE id = :id";
 
-        row.put("id", id); // re-insert for binding
+        row.put("id", id);
         jdbcTemplate.update(sql, row);
     }
 

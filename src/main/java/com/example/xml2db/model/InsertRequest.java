@@ -2,38 +2,68 @@ package com.example.xml2db.model;
 
 import jakarta.xml.bind.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 @XmlRootElement(name = "insert")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InsertRequest {
 
-    @XmlAttribute(name = "table")
-    private String table;
+    @XmlElement(name = "yks_item")
+    private YksItem yksItem;
 
-    @XmlElement(name = "row")
-    private MapElement row;
+    @XmlElement(name = "yks_item_img")
+    private YksItemImg yksItemImg;
 
-    public String getTable() {
-        return table;
+    public YksItem getYksItem() {
+        return yksItem;
     }
 
-    public Map<String, String> getRow() {
-        return row != null ? row.getData() : null;
+    public void setYksItem(YksItem yksItem) {
+        this.yksItem = yksItem;
     }
 
-    // Nested helper for row
-    public static class MapElement {
-        @XmlAnyElement(lax = true)
-        private java.util.List<org.w3c.dom.Element> elements;
+    public YksItemImg getYksItemImg() {
+        return yksItemImg;
+    }
 
-        public Map<String, String> getData() {
-            Map<String, String> map = new LinkedHashMap<>();
-            for (org.w3c.dom.Element e : elements) {
-                map.put(e.getTagName(), e.getTextContent());
-            }
-            return map;
+    public void setYksItemImg(YksItemImg yksItemImg) {
+        this.yksItemImg = yksItemImg;
+    }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class YksItem {
+        @XmlElement
+        private String item_id;
+
+        @XmlElement
+        private String item_description;
+
+        public String getItem_id() {
+            return item_id;
+        }
+
+        public void setItem_id(String item_id) {
+            this.item_id = item_id;
+        }
+
+        public String getItem_description() {
+            return item_description;
+        }
+
+        public void setItem_description(String item_description) {
+            this.item_description = item_description;
+        }
+    }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class YksItemImg {
+        @XmlElement
+        private String img_url;
+
+        public String getImg_url() {
+            return img_url;
+        }
+
+        public void setImg_url(String img_url) {
+            this.img_url = img_url;
         }
     }
 }

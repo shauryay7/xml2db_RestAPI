@@ -1,57 +1,29 @@
-# XML-to-Database Dynamic CRUD API (Spring Boot + MySQL)
+# XML to Database + Dynamic Code Generator
 
-This project allows you to upload an XML file to create MySQL tables dynamically and perform CRUD operations (Insert, Read, Update, Delete) using XML payloads through REST APIs.
+This Spring Boot project allows you to:
+1. Upload an XML file that defines table structure.
+2. Create the corresponding table in a MySQL database.
+3. Dynamically generate full CRUD-enabled Java source files (`Model`, `Repository`, `Service`, `Controller`) for each table.
 
----
+## ✅ Features
+- Upload XML via REST API
+- Creates MySQL tables dynamically
+- Generates Java CRUD components for each table in: `src/main/java/com/example/generated/{table}/`
+- Insert/Update/Delete/Get APIs work via XML too
 
-## 🛠 Technologies Used
-- Spring Boot 3.x
-- Java 17+
-- MySQL
-- JAXB (XML Parsing)
-- Spring Data JPA
-- NamedParameterJdbcTemplate
+## 🚀 How to Run
 
----
+### 1. Configure MySQL
+Update your `application.properties` with your MySQL credentials.
 
-## ⚙️ Setup Instructions
-
-### 1. Clone the Project
-```
-git clone https://github.com/your-username/xml2db.git
-cd xml2db
-```
-
-### 2. Configure MySQL
-
-Create a database in MySQL:
-```sql
-CREATE DATABASE xml2db;
-```
-
-Update `src/main/resources/application.properties` with your DB credentials:
-```
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-```
-
-### 3. Build & Run
-```
+### 2. Run the app
+```bash
 ./mvnw spring-boot:run
 ```
-OR
-```
-mvn clean install
-java -jar target/xml2db-0.0.1-SNAPSHOT.jar
-```
 
----
+### 3. Upload XML
+Use Postman to POST the following to `http://localhost:8080/upload-xml`:
 
-## 📦 API Endpoints
-
-### ✅ Upload XML to Create Tables
-**POST** `/upload-xml`  
-**Body (XML):**
 ```xml
 <database>
     <table name="student">
@@ -62,11 +34,14 @@ java -jar target/xml2db-0.0.1-SNAPSHOT.jar
 </database>
 ```
 
----
+### 4. Check output
+- MySQL: `student` table is created
+- Java: CRUD files generated in `src/main/java/com/example/generated/student/`
 
-### ✅ Insert Data (Dynamic)
-**POST** `/insert-xml`  
-**Body (XML):**
+## 🧪 Test Other APIs
+
+### Insert
+POST `/insert-xml`
 ```xml
 <insert table="student">
     <row>
@@ -77,50 +52,37 @@ java -jar target/xml2db-0.0.1-SNAPSHOT.jar
 </insert>
 ```
 
----
-
-### ✅ Get All Data
-**GET** `/data/student`
-
----
-
-### ✅ Get by ID
-**GET** `/data/student/1`
-
----
-
-### ✅ Update Data
-**PUT** `/update-xml`  
-**Body (XML):**
+### Update
+PUT `/update-xml`
 ```xml
 <update table="student">
     <row>
         <id>1</id>
         <name>John Updated</name>
-        <email>john.updated@example.com</email>
+        <email>updated@example.com</email>
     </row>
 </update>
 ```
 
----
-
-### ✅ Delete Data
-**DELETE** `/delete-xml`  
-**Body (XML):**
+### Delete
+DELETE `/delete-xml`
 ```xml
 <delete table="student">
     <id>1</id>
 </delete>
 ```
 
+## 📁 Output Example
+
+```
+src/main/java/com/example/generated/student/
+├── Student.java
+├── StudentRepository.java
+├── StudentService.java
+└── StudentController.java
+```
+
 ---
 
-## 📌 Notes
-- All operations are dynamic for any table created from XML.
-- All insert/update/delete payloads must be valid XML.
-- Use Postman to test all APIs with `Content-Type: application/xml`.
-
----
-
-## 📧 Contact
-For questions or suggestions, feel free to raise an issue or PR.
+## 👨‍💻 Author
+Made using Spring Boot and MySQL

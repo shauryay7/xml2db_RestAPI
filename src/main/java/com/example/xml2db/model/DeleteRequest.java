@@ -6,17 +6,25 @@ import jakarta.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DeleteRequest {
 
-    @XmlAttribute
+    @XmlElement(name = "table")
     private String table;
 
-    @XmlElement
+    @XmlElement(name = "id")
     private String id;
 
     public String getTable() {
         return table;
     }
 
+    public void setTable(String table) {
+        this.table = table;
+    }
+
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

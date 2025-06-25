@@ -82,8 +82,29 @@ public class DynamicCrudService {
     }
 
     public void delete(DeleteRequest request) {
-        String sql = "DELETE FROM " + request.getTable() + " WHERE id = :id";
-        Map<String, String> params = Map.of("id", request.getId());
-        jdbcTemplate.update(sql, params);
+        if (!"yks_item".equalsIgnoreCase(request.getTable())) {
+            throw new UnsupportedOperationException("Delete only supported for 'yks_item' table in this implementation.");
+        }
+
+        // 1. Fetch item_key using item_id
+        String getKeySql = "SELECT item_key FROM yks_item WHERE item_id = :item_id";
+        Map<String, Object> param = Map.of("item_id", request.getId());
+
+        List<Map<String, Object>> result = jdbcTemplate.queryForList(getKeySql, param);
+
+        if (result.isEmpty()) {
+            throw new IllegalArgumentException("Item with item_id '" + request.getId() + "' not found.");
+        }
+
+        int itemKey = (int) result.get(0).get("item_key");
+
+        // 2. Delete from yks_item_img (child table)
+        String deleteChildSql = "DELETE FROM yks_item_img WHERE item_key = :item_key";
+        jdbcTemplate.update(deleteChildSql, Map.of("item_key", itemKey));
+
+        // 3. Delete from yks_item (parent table)
+        String deleteParentSql = "DELETE FROM yks_item WHERE item_key = :item_key";
+        jdbcTemplate.update(deleteParentSql, Map.of("item_key", itemKey));
     }
+
 }

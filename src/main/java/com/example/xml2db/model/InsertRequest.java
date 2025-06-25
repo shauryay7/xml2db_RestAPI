@@ -30,40 +30,53 @@ public class InsertRequest {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class YksItem {
-        @XmlElement
-        private String item_id;
 
-        @XmlElement
-        private String item_description;
+        @XmlElement(name = "item_id")
+        private String itemId;
 
-        public String getItem_id() {
-            return item_id;
+        @XmlElement(name = "item_description")
+        private String itemDescription;
+
+        @XmlElement(name = "stock")
+        private Integer stock;
+
+        public String getItemId() {
+            return itemId;
         }
 
-        public void setItem_id(String item_id) {
-            this.item_id = item_id;
+        public void setItemId(String itemId) {
+            this.itemId = itemId;
         }
 
-        public String getItem_description() {
-            return item_description;
+        public String getItemDescription() {
+            return itemDescription;
         }
 
-        public void setItem_description(String item_description) {
-            this.item_description = item_description;
+        public void setItemDescription(String itemDescription) {
+            this.itemDescription = itemDescription;
+        }
+
+        public Integer getStock() {
+            return stock;
+        }
+
+        public void setStock(Integer stock) {
+            this.stock = stock;
         }
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class YksItemImg {
-        @XmlElement
-        private String img_url;
 
-        public String getImg_url() {
-            return img_url;
+        @XmlElement(name = "img_url")
+        private String imgUrl;
+
+        public String getImgUrl() {
+            return imgUrl;
         }
 
-        public void setImg_url(String img_url) {
-            this.img_url = img_url;
+        public void setImgUrl(String imgUrl) {
+            this.imgUrl = imgUrl;
         }
     }
 }

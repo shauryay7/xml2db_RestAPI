@@ -27,13 +27,14 @@ public class DynamicCrudService {
 
         if (yksItem != null && yksItemImg != null) {
             // 1. Insert into yks_item (parent)
-            String insertItemSql = "INSERT INTO yks_item (item_id, item_description) VALUES (?, ?)";
+            String insertItemSql = "INSERT INTO yks_item (item_id, item_description, stock) VALUES (?, ?, ?)";
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
             jdbcTemplate.getJdbcTemplate().update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(insertItemSql, Statement.RETURN_GENERATED_KEYS);
-                ps.setString(1, yksItem.getItem_id());
-                ps.setString(2, yksItem.getItem_description());
+                ps.setString(1, yksItem.getItemId());
+                ps.setString(2, yksItem.getItemDescription());
+                ps.setObject(3, yksItem.getStock() != null ? yksItem.getStock() : 0); // default stock to 0
                 return ps;
             }, keyHolder);
 
@@ -46,7 +47,7 @@ public class DynamicCrudService {
             String insertImgSql = "INSERT INTO yks_item_img (item_key, img_url) VALUES (:item_key, :img_url)";
             Map<String, Object> imgParams = new HashMap<>();
             imgParams.put("item_key", itemKey.longValue());
-            imgParams.put("img_url", yksItemImg.getImg_url());
+            imgParams.put("img_url", yksItemImg.getImgUrl());
             jdbcTemplate.update(insertImgSql, imgParams);
 
         } else {

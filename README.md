@@ -5,7 +5,7 @@ This project allows you to manage inventory data using XML upload, dynamic SQL t
 ---
 
 ## 🔁 1. Upload & Insert Inventory Item via XML
-- **Endpoint:** `POST /upload-xml`
+- **Endpoint:** `POST /insert-xml`
 - **Headers:** `Content-Type: application/xml`
 - **Body (raw, XML):**
 ```xml
@@ -24,7 +24,7 @@ This project allows you to manage inventory data using XML upload, dynamic SQL t
 ---
 
 ## 🏗️ 2. Create SQL Tables Dynamically via XML
-- **Endpoint:** `POST /create-tables`
+- **Endpoint:** `POST /upload-xml`
 - **Headers:** `Content-Type: application/xml`
 - **Body:**
 ```xml
@@ -93,6 +93,7 @@ This project allows you to manage inventory data using XML upload, dynamic SQL t
 This deletes the record from `yks_item` and also removes the associated `yks_item_img` via item_key.
 
 ---
+## Use this Query for else the code will give errors
 ```
 CREATE TABLE IF NOT EXISTS purchased_order (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
